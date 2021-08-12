@@ -1,0 +1,12 @@
+#!/bin/bash
+
+CORE_KEYBOARD_ID=3
+EXTERNAL_KEYBOARD_ID=16
+export DISPLAY=:0
+export XAUTHORITY=/home/fwernli/.Xauthority
+if [ "${ACTION}" = "add" -a -d "/sys${DEVPATH}" ]; then
+  xinput float $EXTERNAL_KEYBOARD_ID
+elif [[ "${ACTION}" == "remove" ]]; then
+  xinput reattach $EXTERNAL_KEYBOARD_ID $CORE_KEYBOARD_ID
+fi
+
