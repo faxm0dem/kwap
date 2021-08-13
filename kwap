@@ -51,8 +51,10 @@ done
 [[ -z "${CORE_KEYBOARD_ID:-}" ]] && CORE_KEYBOARD_ID=$(get_core_keyboard_id)
 
 if [ "${ACTION}" = "add" -a -d "/sys${DEVPATH}" ]; then
-  echo xinput float $EXT_KEYBOARD_ID
+	logger -t kwap external keyboard $EXT_KEYBOARD_ID connected
+	xinput float $EXT_KEYBOARD_ID
 elif [[ "${ACTION}" == "remove" ]]; then
-  echo xinput reattach $EXT_KEYBOARD_ID $CORE_KEYBOARD_ID
+	logger -t kwap external keyboard $EXT_KEYBOARD_ID disconnected
+	xinput reattach $EXT_KEYBOARD_ID $CORE_KEYBOARD_ID
 fi
 
