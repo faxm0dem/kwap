@@ -1,0 +1,1 @@
+ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", RUN+="/path/to/kwap --external=15 --display=:0 --xauthority=/home/me/.Xauthority"

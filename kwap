@@ -1,12 +1,58 @@
-#!/bin/bash
+#!/bin/bash -ue
 
-CORE_KEYBOARD_ID=3
-EXTERNAL_KEYBOARD_ID=16
-export DISPLAY=:0
-export XAUTHORITY=/home/fwernli/.Xauthority
+if [[ -z "$ACTION" ]]; then
+	echo "This tool is meant to be run by udev. See https://github.com/faxm0dem/kwap" >&2
+	exit 2
+fi
+
+opts=$(getopt -o i::e:x:d: --long internal::,external:,xauthority:,display:: -n 'option-parser' -- "$@")
+eval set -- "$opts"
+
+function help {
+	echo "Usage:
+	  $0 <[--internal 3] <--external 15> <--xauthority ~/Xauthority> [--display]"
+	exit 1
+}
+
+function get_core_keyboard_id {
+	xinput list --short|awk -F[=\[] '/master keyboard/{print $2}'
+}
+
+if [[ "$1" == "--" ]]; then help; fi
+
+while true; do
+	case "$1" in
+		--internal|-i)
+			case "$2" in
+				"") shift 2;;
+				 *) CORE_KEYBOARD_ID=$2; shift 2;;
+			esac;;
+		--external|-e)
+			case "$2" in
+				"") help;;
+				*) EXT_KEYBOARD_ID=$2; shift 2;;
+			esac;;
+		--xauthority|-x)
+			case "$2" in
+				"") help;;
+				*) export XAUTHORITY=$2; shift 2;;
+			esac;;
+		--display|-d)
+			case "$2" in
+				"") shift 2;;
+				*) export DISPLAY=$2; shift 2;;
+			esac;;
+		--) shift; break;;
+		-h|--help) help;;
+		*) echo "Argument parsing error" >&2; break;;
+	esac
+done
+
+[[ -z "${CORE_KEYBOARD_ID:-}" ]] && CORE_KEYBOARD_ID=$(get_core_keyboard_id)
+
 if [ "${ACTION}" = "add" -a -d "/sys${DEVPATH}" ]; then
-  xinput float $EXTERNAL_KEYBOARD_ID
+  echo xinput float $EXT_KEYBOARD_ID
 elif [[ "${ACTION}" == "remove" ]]; then
-  xinput reattach $EXTERNAL_KEYBOARD_ID $CORE_KEYBOARD_ID
+  echo xinput reattach $EXT_KEYBOARD_ID $CORE_KEYBOARD_ID
 fi
 
