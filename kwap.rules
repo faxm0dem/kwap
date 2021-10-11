@@ -1,1 +1,1 @@
-ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", RUN+="/path/to/kwap --external=15 --display=:0 --xauthority=/home/me/.Xauthority"
+ENV{MINOR}!="", ENV{ID_INPUT_KEYBOARD}=="1", ENV{ID_INPUT_MOUSE}!="1", SUBSYSTEM=="input", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", RUN+="/home/fwernli/bin/kwap -i \"AT Translated Set 2 keyboard\" --display=:0 --xauthority=/home/fwernli/.Xauthority"

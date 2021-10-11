@@ -7,10 +7,16 @@ The idea behind this tool was to be able to place my Atreus keyboard on top of m
 ## Synopsis
 
 ```
-kwap --external=15 --xauthority /home/me/.Xauthority
+kwap --internal=15 --xauthority /home/me/.Xauthority
 ```
 
-You can find out what IDs to use in the options by running `xinput list`:
+or
+
+```
+kwap -i 'AT Translated Set 2 keyboard' --xauthority /home/me/.Xauthority
+```
+
+You can find out what is the internal keyboard to disable in the options by running `xinput list`:
 
 ```
 ☠ xinput list --short
@@ -35,14 +41,13 @@ You can find out what IDs to use in the options by running `xinput list`:
     ↳ Dell WMI hotkeys                          id=20   [slave  keyboard (3)]
 ```
 
-The `--internal` would be in this case `id=3` which is set by default to the `id` corresponding to the line `Virtual core keyboard`.
-The `--external` would be your external keyboard, *e.g.* `id=16` corresponding to the `Keyboardio Atreus`.
-The other two you can get using your environment variables `$XAUTHORITY` and `$DISPLAY`.
+The `--internal` would be in this case `id=19`.
+The other two options you can get using your environment variables `$XAUTHORITY` and `$DISPLAY`.
 
-You can then add the following rule to your `udev` rules folder:
+You can then add the following rule to your `udev` rules folder. For instance:
 
 ```
-ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", RUN+="/path/to/kwap --external=15 --xauthority=/home/me/.Xauthority"
+ENV{MINOR}!="", ENV{ID_INPUT_KEYBOARD}=="1", ENV{ID_INPUT_MOUSE}!="1", SUBSYSTEM=="input", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", RUN+="/path/to/kwap --external=15 --xauthority=/home/me/.Xauthority"
 ```
 
 You can find about the `idVendor` and `idProduct` values corresponding to your external keyboard using the `lsusb` command:

@@ -5,12 +5,13 @@ if [[ -z "$ACTION" ]]; then
 	exit 2
 fi
 
-opts=$(getopt -o i::e:x:d: --long internal::,external:,xauthority:,display:: -n 'option-parser' -- "$@")
+opts=$(getopt -o i:x:d: --long internal:,xauthority:,display:: -n 'option-parser' -- "$@")
 eval set -- "$opts"
 
 function help {
 	echo "Usage:
-	  $0 <[--internal 3] <--external 15> <--xauthority ~/Xauthority> [--display]"
+	  $0 <--internal 15> <--xauthority ~/Xauthority> [--display]
+		$0 <-i 'AT Translated Set 2 keyboard'>"
 	exit 1
 }
 
@@ -24,23 +25,18 @@ while true; do
 	case "$1" in
 		--internal|-i)
 			case "$2" in
-				"") shift 2;;
-				 *) CORE_KEYBOARD_ID=$2; shift 2;;
-			esac;;
-		--external|-e)
-			case "$2" in
 				"") help;;
-				*) EXT_KEYBOARD_ID=$2; shift 2;;
+				*) INT_KEYBOARD_ID="$2"; shift 2;;
 			esac;;
 		--xauthority|-x)
 			case "$2" in
 				"") help;;
-				*) export XAUTHORITY=$2; shift 2;;
+				*) export XAUTHORITY="$2"; shift 2;;
 			esac;;
 		--display|-d)
 			case "$2" in
 				"") shift 2;;
-				*) export DISPLAY=$2; shift 2;;
+				*) export DISPLAY="$2"; shift 2;;
 			esac;;
 		--) shift; break;;
 		-h|--help) help;;
@@ -48,13 +44,11 @@ while true; do
 	esac
 done
 
-[[ -z "${CORE_KEYBOARD_ID:-}" ]] && CORE_KEYBOARD_ID=$(get_core_keyboard_id)
-
 if [ "${ACTION}" = "add" -a -d "/sys${DEVPATH}" ]; then
-	logger -t kwap external keyboard $EXT_KEYBOARD_ID connected
-	xinput float $EXT_KEYBOARD_ID
+	logger -t kwap external keyboard $DEVPATH connected
+	xinput --disable "$INT_KEYBOARD_ID"
 elif [[ "${ACTION}" == "remove" ]]; then
-	logger -t kwap external keyboard $EXT_KEYBOARD_ID disconnected
-	xinput reattach $EXT_KEYBOARD_ID $CORE_KEYBOARD_ID
+	logger -t kwap external keyboard $DEVPATH disconnected
+	xinput --enable "$INT_KEYBOARD_ID"
 fi
 
